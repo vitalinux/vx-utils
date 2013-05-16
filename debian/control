@@ -1,0 +1,14 @@
+Source: vx-utils
+Section: utils
+Priority: extra
+Maintainer: Jose Antonio Chavarría <jachavar@gmail.com>
+Build-Depends: debhelper (>= 8.0.0), pandoc
+Standards-Version: 3.9.3
+Homepage: https://github.com/vitalinux/vx-utils
+
+Package: vx-utils
+Architecture: all
+Depends: ${misc:Depends}, ${python:Depends}, gconf2, rpl, gnome-icon-theme-full, libnotify-bin, zenity, python-netifaces, python2.7
+Description: Scripts with utilities for the command line
+ Commands built in Python and Bash that can be used in the processes of
+ installation of other packages of distribution Vitalinux and derived

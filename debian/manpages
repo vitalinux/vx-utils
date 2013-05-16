@@ -1,0 +1,8 @@
+man/azl-gconf.1
+man/azl-line-comment.1
+man/azl-line-insert.1
+man/azl-line-delete.1
+man/azl-file.1
+man/azl-file-get-key.1
+man/azl-file-set-key.1
+man/azl-text-get-line-number.1

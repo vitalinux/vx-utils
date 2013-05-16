@@ -1,0 +1,23 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+# Sample debian/rules that uses debhelper.
+# This file was originally written by Joey Hess and Craig Small.
+# As a special exception, when this file is copied by dh-make into a
+# dh-make output file, you may use that output file without restriction.
+# This special exception was added by Craig Small in version 0.37 of dh-make.
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+%:
+	dh $@
+
+override_dh_auto_build:
+	pandoc -s -r markdown -w man man/vx-gconf.1.md -o man/vx-gconf.1
+	pandoc -s -r markdown -w man man/vx-line-comment.1.md -o man/vx-line-comment.1
+	pandoc -s -r markdown -w man man/vx-line-insert.1.md -o man/vx-line-insert.1
+	pandoc -s -r markdown -w man man/vx-line-delete.1.md -o man/vx-line-delete.1
+	pandoc -s -r markdown -w man man/vx-file.1.md -o man/vx-file.1
+	pandoc -s -r markdown -w man man/vx-file-get-key.1.md -o man/vx-file-get-key.1
+	pandoc -s -r markdown -w man man/vx-file-set-key.1.md -o man/vx-file-set-key.1
+	pandoc -s -r markdown -w man man/vx-text-get-line-number.1.md -o man/vx-text-get-line-number.1

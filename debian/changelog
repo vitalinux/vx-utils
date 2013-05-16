@@ -1,0 +1,8 @@
+azl-utils (12.0-1) unstable; urgency=low
+
+  * Versión inicial en Ubuntu (Precise Pangolin).
+  * Se añaden como dependencias gnome-icon-theme-full (por los iconos que
+    necesita vx-notify), libnotify-bin y zenity.
+  * Se intenta seguir el convenio prefijo-objeto-acción en los comandos.
+
+ -- Jose Antonio Chavarría <jachavar@gmail.com>  Thu, 16 May 2013 18:04:41 +0100
