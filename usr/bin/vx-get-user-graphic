@@ -1,0 +1,53 @@
+#!/usr/bin/env python
+# -*- coding: UTF-8 -*-
+
+# Copyright (c) 2013 Jose Antonio Chavarría
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+#
+# Author: Jose Antonio Chavarría <jachavar@gmail.com>
+
+__author__ = 'Jose Antonio Chavarría'
+
+import argparse
+import os
+import sys
+import errno
+import commands
+
+import vx_lib as vx
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description='Get user that has been logged in graphical session',
+        epilog='Vitalinux utility'
+    )
+
+    return vars(parser.parse_args())
+
+
+def run():
+    args = parse_args()
+
+    graphic_pid, _ = vx.get_graphic_pid()
+    if graphic_pid:
+        print(vx.get_graphic_user(graphic_pid))
+        sys.exit(os.EX_OK)  # no error
+
+    # No detected graphic process
+    sys.exit(errno.ESRCH)
+
+if __name__ == '__main__':
+    run()

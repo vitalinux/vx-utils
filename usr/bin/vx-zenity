@@ -1,0 +1,75 @@
+#!/bin/bash
+
+# Copyright (c) 2013 Jose Antonio Chavarría
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+#
+# Author: Jose Antonio Chavarría <jachavar@gmail.com>
+
+# File: /usr/bin/vx-zenity
+# Permissions: root:root 755 (pero sólo root tiene privilegios para ejecutarlo)
+# Example: vx-zenity --notification --window-icon=error --text=\"word1 word2 word3\"
+
+if [ $UID -ne 0 ]
+then
+    echo "Only root could execute this script."
+    exit 1
+fi
+
+_DEBUG=0
+function debug
+{
+  if [ $_DEBUG -eq 1 ]
+  then
+    local __TIMESTAMP=$(/bin/date +"%Y-%m-%d %H:%M:%S")
+    echo "## $__TIMESTAMP ## $@"
+  fi
+}
+
+_ZENITY_CMD=/usr/bin/zenity
+
+_PIDS=$(/usr/bin/pgrep gnome-session) # Gnome system
+if [ -z $_PIDS ]
+then
+  _PIDS=$(/usr/bin/pgrep start_kdeinit) # KDE system
+  if [ -z $_PIDS ]
+  then
+    exit 1 # nothing to do
+  fi
+fi
+
+_OPTS=$@
+debug $_OPTS
+
+for _PID in $_PIDS
+do
+  debug $_PID
+
+  # find user for this session
+  USER=$(/bin/grep -z USERNAME \
+    /proc/$_PID/environ | /bin/sed -e 's/USERNAME=//')
+
+  debug $USER
+
+  if [ $# -eq 0 ]
+  then
+    $_ZENITY_CMD --help --display=:0.0
+    exit 1 # nothing to do
+  fi
+
+  DISPLAY=:0.0 \
+    su -c "$_ZENITY_CMD --display=$DISPLAY $_OPTS" $_USER
+done
+
+exit 0

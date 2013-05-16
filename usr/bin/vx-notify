@@ -1,0 +1,112 @@
+#!/bin/bash
+
+# Copyright (c) 2013 Jose Antonio Chavarría
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+#
+# Author: Jose Antonio Chavarría <jachavar@gmail.com>
+
+# File: /usr/bin/vx-notify
+# Permissions: root:root 755 (pero sólo root tiene privilegios para ejecutarlo)
+# Syntax: vx-notify [-t <expire_time>] [-l <level>] <title> <text>
+
+if [ $UID -ne 0 ]
+then
+    echo "Only root could execute this script."
+    exit 1
+fi
+
+_NOTIFY_CMD=/usr/bin/notify-send
+_ICON_PATH=/usr/share/icons/gnome/32x32/status
+_USAGE_MSG="Usage: $(/usr/bin/basename $0) [-t expire_time] [-l level] <title> <text>"
+
+# si no pasan argumentos, sacamos el mensaje de uso y no hacemos nada más
+if [ $# -eq 0 ]
+then
+    echo $_USAGE_MSG
+    exit 1
+fi
+
+_TIME=15000
+_LEVEL=low
+
+_DEBUG=0
+function debug
+{
+  if [ $_DEBUG -eq 1 ]
+  then
+    local __TIMESTAMP=$(/bin/date +"%Y-%m-%d %H:%M:%S")
+    echo "## $__TIMESTAMP ## $@"
+  fi
+}
+
+_PIDS=$(/usr/bin/pgrep gnome-session) # Gnome system
+if [ -z $_PIDS ]
+then
+  _PIDS=$(/usr/bin/pgrep start_kdeinit) # KDE system
+  if [ -z $_PIDS ]
+  then
+    exit 0 # nothing to do
+  fi
+fi
+
+while getopts t:l:h _OP
+do
+  case "$_OP" in
+    t)  _TIME="$OPTARG";;
+    l)  _LEVEL="$OPTARG";;
+    h)  echo $_USAGE_MSG; exit 1;;
+  esac
+done
+shift $(/usr/bin/expr $OPTIND - 1)
+
+_TITLE=$1
+_TEXT=$2
+
+if [ -z $_LEVEL ]
+then
+    _LEVEL=low
+fi
+
+case $_LEVEL in
+    critical)
+        _ICON=dialog-warning.png
+        ;;
+
+    *)
+        _ICON=dialog-information.png
+        ;;
+esac
+
+for _PID in $_PIDS
+do
+  debug $_PID
+
+  # find DBUS session bus for this session
+  DBUS_SESSION_BUS_ADDRESS=$(/bin/grep -z DBUS_SESSION_BUS_ADDRESS \
+    /proc/$_PID/environ | /bin/sed -e 's/DBUS_SESSION_BUS_ADDRESS=//')
+
+  # find user for this session
+  USER=$(/bin/grep -z USER \
+    /proc/$_PID/environ | /bin/sed -e 's/USER=//')
+
+  # use it
+  DBUS_SESSION_BUS_ADDRESS=$DBUS_SESSION_BUS_ADDRESS \
+    su -c "$_NOTIFY_CMD --urgency=$_LEVEL --icon=$_ICON_PATH/$_ICON --expire-time=$_TIME '$_TITLE' '$_TEXT'" $USER
+
+  debug $DBUS_SESSION_BUS_ADDRESS
+  debug $USER
+done
+
+exit 0

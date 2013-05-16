@@ -1,0 +1,51 @@
+#!/bin/bash
+
+# Copyright (c) 2013 Jose Antonio Chavarría
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+#
+# Author: Jose Antonio Chavarría <jachavar@gmail.com>
+
+# File: /usr/bin/vx-user-get-mozilla-profile
+# Permissions: root:root 755
+# Syntax: vx-user-get-mozilla-profile <app> [<user>]
+
+# TODO si hay más de un perfil en el HOME del usuario, sólo devuelve el primero, sin saber si es el default
+
+if [ $# -gt 2 ]
+then
+    echo "Uso: $(/usr/bin/basename $0) <app> [<user>]"
+    exit 1
+fi
+
+_APP="$1"
+[ "$_APP" != "firefox" -a "$_APP" != "thunderbird" ] && _APP="firefox"
+[ "$_APP" = "firefox" ] && _PATH_APP=".mozilla/firefox" || _PATH_APP=".thunderbird"
+
+_USER=${2:-$USER}
+
+_HOME=$(/usr/bin/getent passwd $_USER | /usr/bin/cut --delimiter=':' --fields=6)
+if [ -z "$_HOME" ]
+then
+    exit 2
+fi
+
+_DIR=$(/bin/grep "Path=" $_HOME/$_PATH_APP/profiles.ini | /usr/bin/cut --delimiter='=' --fields=2 | /usr/bin/head -1)
+if [ -z "$_DIR" ]
+then
+    exit 2
+fi
+
+echo $_HOME/$_PATH_APP/$_DIR
+exit 0

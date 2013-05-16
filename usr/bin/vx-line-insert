@@ -1,0 +1,125 @@
+#!/usr/bin/env python
+# -*- coding: UTF-8 -*-
+
+# Copyright (c) 2013 Jose Antonio Chavarría
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+#
+# Author: Jose Antonio Chavarría <jachavar@gmail.com>
+
+__author__ = 'Jose Antonio Chavarría'
+
+import argparse
+import os
+import sys
+import errno
+
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description='Insert a text in a file',
+        epilog='Vitalinux utility'
+    )
+
+    parser.add_argument(
+        '-t', '--text',
+        action='store',
+        help='text to insert in file',
+        required=True
+    )
+
+    parser.add_argument(
+        '-f', '--file',
+        action='store',
+        help='file to insert line',
+        required=True
+    )
+
+    parser.add_argument(
+        '-q', '--quiet',
+        action='store_true',
+        help='enable silence mode (no verbose)'
+    )
+
+    group_data = parser.add_mutually_exclusive_group(required=False)
+
+    group_data.add_argument(
+        '-a', '--append',
+        action='store_true',
+        help='append text to the end of file if no line number exists (default mode)',
+        default=True
+    )
+
+    group_data.add_argument(
+        '-l', '--line',
+        action='store',
+        help='append text at line number'
+    )
+
+    return vars(parser.parse_args())
+
+def run():
+    args = parse_args()
+
+    if not os.path.isfile(args['file']):
+        if not args['quiet']:
+            print('File "%s" not found' % args['file'])
+        sys.exit(errno.ENOENT)
+
+    lines = open(args['file'], 'rb').readlines()
+
+    f = None
+    try:
+        f = open(args['file'], 'wb')
+    except IOError:
+        if not args['quiet']:
+            print('Error writting to file')
+        if f is not None:
+            f.close()
+        sys.exit(errno.EPERM)  # error writting to file
+
+    inserted = False
+    new_line = '%s%s' % (args['text'], '\n')
+
+    if not args['line']:
+        args['line'] = 0  # append to the end of file!!!
+
+    for i in range(len(lines)):
+        if not inserted and i == (int(args['line']) - 1):
+            f.write(new_line)
+            inserted = True
+        f.write(lines[i])
+
+    # text not inserted, append to the end of file?
+    if not inserted:
+        if args['append']:
+            f.write(new_line)
+            inserted = True
+            if not args['quiet']:
+                print('Text appended to the end of file')
+        else:
+            if not args['quiet']:
+                print('Text not inserted!!!')
+    else:
+        if not args['quiet']:
+            print('Text inserted!!!')
+
+    f.close()
+
+    if not inserted:
+        sys.exit(errno.ENODATA)
+
+    sys.exit(os.EX_OK)  # no error
+
+if __name__ == '__main__':
+    run()

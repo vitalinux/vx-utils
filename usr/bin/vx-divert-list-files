@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# Permissions: root:root 755
+# Syntax: vx-divert-list-files <package>
+# Lista todos los ficheros que se divergen en un determinado paquete
+
+if [ $# -ne 1 ]
+then
+    exit 1
+fi
+
+_PKG=$1
+_PATH=/usr/share/$_PKG/divert
+if [ -d $_PATH ]
+then
+    find $_PATH -type f | cut -c2-
+    find $_PATH -type l | cut -c2-
+fi

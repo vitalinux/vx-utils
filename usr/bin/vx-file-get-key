@@ -1,0 +1,83 @@
+#!/usr/bin/env python
+# -*- coding: UTF-8 -*-
+
+# Copyright (c) 2013 Jose Antonio Chavarría
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+#
+# Author: Jose Antonio Chavarría <jachavar@gmail.com>
+
+__author__ = 'Jose Antonio Chavarría'
+
+import argparse
+import os
+import sys
+import errno
+
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description='Read a variable in a configuration file (first occurrence)',
+        epilog='Vitalinux utility'
+    )
+
+    parser.add_argument(
+        '-k', '--key',
+        action='store',
+        help='key to search in file',
+        required=True
+    )
+
+    parser.add_argument(
+        '-f', '--file',
+        action='store',
+        help='file to search',
+        required=True
+    )
+
+    parser.add_argument(
+        '-s', '--separator',
+        action='store',
+        help='character separator between key and value ("=" by default)',
+        default='=',
+        choices=' =:'
+    )
+
+    parser.add_argument(
+        '-q', '--quiet',
+        action='store_true',
+        help='enable silence mode (no verbose)'
+    )
+
+    return vars(parser.parse_args())
+
+def run():
+    args = parse_args()
+
+    if not os.path.isfile(args['file']):
+        if not args['quiet']:
+            print('File "%s" not found' % args['file'])
+        sys.exit(errno.ENOENT)
+
+    # find only first occurrence!!!
+    for line in open(args['file']):
+        if line.startswith(args['key']) and args['separator'] in line:
+            print(line.split(args['separator'])[-1].strip())
+            sys.exit(os.EX_OK)  # no error
+
+    if not args['quiet']:
+        print('Key not found')
+    sys.exit(errno.ENODATA)
+
+if __name__ == '__main__':
+    run()

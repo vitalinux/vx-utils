@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# Permissions: root:root 755
+# Syntax: vx-divert-remove <package>
+# Quita el divert de todos los ficheros del paquete pasado como argumento
+
+_PKG=$1
+for _FILE in $(vx-divert-list-files $_PKG)
+do
+    [ -L $_FILE ] && rm $_FILE
+    dpkg-divert --remove --package $_PKG --rename --divert $_FILE.divert $_FILE
+done
