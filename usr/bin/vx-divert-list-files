@@ -13,6 +13,7 @@ _PKG=$1
 _PATH=/usr/share/$_PKG/divert
 if [ -d $_PATH ]
 then
-    find $_PATH -type f | cut -c2-
-    find $_PATH -type l | cut -c2-
+    cd $_PATH
+    /usr/bin/find . -type f | /usr/bin/cut -c2-  # erase first character (.)
+    /usr/bin/find . -type l | /usr/bin/cut -c2-  # erase first character (.)
 fi
