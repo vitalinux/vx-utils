@@ -7,6 +7,8 @@
 _PKG=$1
 for _FILE in $(vx-divert-list-files $_PKG)
 do
-    dpkg-divert --add --package $_PKG --rename --divert $_FILE.divert $_FILE
-    [ ! -e $_FILE -o -L $_FILE ] && ln -sf /usr/share/$_PKG/divert/$_FILE $_FILE
+	_DIRNAME="$(/usr/bin/dirname $_FILE)"
+	_BASENAME="$(/usr/bin/basename $_FILE)"
+    dpkg-divert --add --package $_PKG --rename --divert "$_DIRNAME/.$_BASENAME.divert" "$_FILE"
+    [ ! -e "$_FILE" -o -L "$_FILE" ] && ln -sf "/usr/share/$_PKG/divert$_FILE" "$_FILE"
 done
