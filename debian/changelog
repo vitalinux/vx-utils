@@ -1,3 +1,11 @@
+vx-utils (1.1-1) unstable; urgency=low
+
+  * El fichero divergido se pone como oculto en el comando vx-divert-add. Para
+    mantener compatibilidad, en vx-divert-remove, se busca tanto el fichero
+    oculto como el normal. (closes #1)
+
+ -- Jose Antonio Chavarría <jachavar@gmail.com>  Fri, 21 Mar 2014 11:55:41 +0100
+
 vx-utils (1.0-1) unstable; urgency=low
 
   * Versión inicial en Ubuntu (Precise Pangolin).
