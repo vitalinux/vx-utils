@@ -1,3 +1,9 @@
+vx-utils (1.2-1) unstable; urgency=low
+
+  * Se corrige el código de retorno del script vx-divert-remove (closes #2).
+
+ -- Jose Antonio Chavarría <jachavar@gmail.com>  Tue, 15 Apr 2014 10:39:41 +0100
+
 vx-utils (1.1-1) unstable; urgency=low
 
   * El fichero divergido se pone como oculto en el comando vx-divert-add. Para
