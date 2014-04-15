@@ -9,9 +9,11 @@ for _FILE in $(vx-divert-list-files $_PKG)
 do
     [ -L "$_FILE" ] && rm "$_FILE"
 
-	_DIRNAME="$(/usr/bin/dirname $_FILE)"
-	_BASENAME="$(/usr/bin/basename $_FILE)"
+    _DIRNAME="$(/usr/bin/dirname $_FILE)"
+    _BASENAME="$(/usr/bin/basename $_FILE)"
 
     [ -f "$_DIRNAME/$_BASENAME.divert" ] && dpkg-divert --remove --package $_PKG --rename --divert "$_DIRNAME/$_BASENAME.divert" "$_FILE"
     [ -f "$_DIRNAME/.$_BASENAME.divert" ] && dpkg-divert --remove --package $_PKG --rename --divert "$_DIRNAME/.$_BASENAME.divert" "$_FILE"
 done
+
+exit 0
