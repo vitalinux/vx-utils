@@ -1,3 +1,11 @@
+vx-utils (1.3-1) unstable; urgency=low
+
+  * Si no existe gnome-icon-theme-full, gnome-icon-theme es suficiente
+    dependencia (closes #3).
+  * Se cambia a un sitio más adecuado el script vx_lib.py (closes #4).
+
+ -- Jose Antonio Chavarría <jachavar@gmail.com>  Sun, 12 Oct 2014 20:12:13 +0100
+
 vx-utils (1.2-1) unstable; urgency=low
 
   * Se corrige el código de retorno del script vx-divert-remove (closes #2).
