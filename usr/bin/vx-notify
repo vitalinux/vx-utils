@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (c) 2013 Jose Antonio Chavarría
+# Copyright (c) 2012-2016 Jose Antonio Chavarría <jachavar@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
-#
-# Author: Jose Antonio Chavarría <jachavar@gmail.com>
 
 # File: /usr/bin/vx-notify
 # Permissions: root:root 755 (pero sólo root tiene privilegios para ejecutarlo)
@@ -31,7 +29,6 @@ _NOTIFY_CMD=/usr/bin/notify-send
 _ICON_PATH=/usr/share/icons/gnome/32x32/status
 _USAGE_MSG="Usage: $(/usr/bin/basename $0) [-t expire_time] [-l level] <title> <text>"
 
-# si no pasan argumentos, sacamos el mensaje de uso y no hacemos nada más
 if [ $# -eq 0 ]
 then
     echo $_USAGE_MSG
@@ -44,37 +41,35 @@ _LEVEL=low
 _DEBUG=0
 function debug
 {
-  if [ $_DEBUG -eq 1 ]
-  then
-    local __TIMESTAMP=$(/bin/date +"%Y-%m-%d %H:%M:%S")
-    echo "## $__TIMESTAMP ## $@"
-  fi
+    if [ $_DEBUG -eq 1 ]
+    then
+        local __TIMESTAMP=$(/bin/date +"%Y-%m-%d %H:%M:%S")
+        echo "## $__TIMESTAMP ## $@"
+    fi
 }
 
-_PIDS=$(/usr/bin/pgrep gnome-session) # Gnome system
-if [ -z $_PIDS ]
+
+_PID=$(python -c "import vx_lib as vx; print(vx.get_graphic_pid()[0])")
+if [ -z "$_PID" ]
 then
-  _PIDS=$(/usr/bin/pgrep start_kdeinit) # KDE system
-  if [ -z $_PIDS ]
-  then
-    exit 0 # nothing to do
-  fi
+    exit 1 # nothing to do
 fi
+debug $_PID
 
 while getopts t:l:h _OP
 do
-  case "$_OP" in
-    t)  _TIME="$OPTARG";;
-    l)  _LEVEL="$OPTARG";;
-    h)  echo $_USAGE_MSG; exit 1;;
-  esac
+    case "$_OP" in
+        t)  _TIME="$OPTARG";;
+        l)  _LEVEL="$OPTARG";;
+        h)  echo $_USAGE_MSG; exit 1;;
+    esac
 done
 shift $(/usr/bin/expr $OPTIND - 1)
 
 _TITLE=$1
 _TEXT=$2
 
-if [ -z $_LEVEL ]
+if [ -z "$_LEVEL" ]
 then
     _LEVEL=low
 fi
@@ -89,24 +84,16 @@ case $_LEVEL in
         ;;
 esac
 
-for _PID in $_PIDS
-do
-  debug $_PID
+_USER=$(vx-get-user-graphic)
+debug $_USER
 
-  # find DBUS session bus for this session
-  DBUS_SESSION_BUS_ADDRESS=$(/bin/grep -z DBUS_SESSION_BUS_ADDRESS \
-    /proc/$_PID/environ | /bin/sed -e 's/DBUS_SESSION_BUS_ADDRESS=//')
+# find DBUS session bus for this session
+_DBUS_SESSION_BUS_ADDRESS=$(/bin/grep -z DBUS_SESSION_BUS_ADDRESS \
+  /proc/$_PID/environ | /bin/sed -e 's/DBUS_SESSION_BUS_ADDRESS=//')
+debug $_DBUS_SESSION_BUS_ADDRESS
 
-  # find user for this session
-  USER=$(/bin/grep -z USER \
-    /proc/$_PID/environ | /bin/sed -e 's/USER=//')
-
-  # use it
-  DBUS_SESSION_BUS_ADDRESS=$DBUS_SESSION_BUS_ADDRESS \
-    su -c "$_NOTIFY_CMD --urgency=$_LEVEL --icon=$_ICON_PATH/$_ICON --expire-time=$_TIME '$_TITLE' '$_TEXT'" $USER
-
-  debug $DBUS_SESSION_BUS_ADDRESS
-  debug $USER
-done
+# use it
+DBUS_SESSION_BUS_ADDRESS=$_DBUS_SESSION_BUS_ADDRESS \
+  su -c "$_NOTIFY_CMD --urgency=$_LEVEL --icon=$_ICON_PATH/$_ICON --expire-time=$_TIME '$_TITLE' '$_TEXT'" $_USER
 
 exit 0
