@@ -1,3 +1,20 @@
+vx-utils (1.4-1) unstable; urgency=low
+
+  * Se incluye la licencia en los ficheros donde faltaba.
+  * Se corrige un problema en el script vx-zenity de conexión rehusada
+    (faltaba la conexión con DBUS).
+  * El script vx-user-get-mozilla-profile devuelve el perfil por defecto aunque
+    haya varios. El código es python en lugar de bash para hacer fácilmente el
+    parseo del fichero profiles.ini.
+  * Corrección del fallo de construcción del paquete con dh_python2.
+  * Limpieza PEP8 de los scripts en Python.
+  * Refactorización de la función get_net_device_info para no confiar en nombres
+    de interfaces de red eth (porque puede que en sistemas con systemd no haya).
+  * Siempre se hace un enlace al fichero que se diverge para evitar posibles
+    problemas si existe el fichero original.
+
+ -- Jose Antonio Chavarría <jachavar@gmail.com>  Mon, 29 Aug 2016 11:59:13 +0100
+
 vx-utils (1.3-1) unstable; urgency=low
 
   * Si no existe gnome-icon-theme-full, gnome-icon-theme es suficiente

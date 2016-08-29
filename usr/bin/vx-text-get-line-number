@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
-# Copyright (c) 2013 Jose Antonio Chavarría
+# Copyright (c) 2013-2016 Jose Antonio Chavarría <jachavar@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,15 +15,14 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
-#
-# Author: Jose Antonio Chavarría <jachavar@gmail.com>
 
-__author__ = 'Jose Antonio Chavarría'
-
-import argparse
 import os
 import sys
 import errno
+import argparse
+
+__author__ = 'Jose Antonio Chavarría'
+
 
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -59,6 +58,7 @@ def parse_args():
 
     return vars(parser.parse_args())
 
+
 def run():
     args = parse_args()
 
@@ -71,7 +71,7 @@ def run():
     # http://theputnams.net/mike/2011/07/05/a-simple-python-grep/
     for num, line in enumerate(open(args['file'])):
         if (args['start'] and line.startswith(args['text'])) \
-        or (not args['start'] and args['text'] == line.replace('\n', '')):
+                or (not args['start'] and args['text'] == line.replace('\n', '')):
             print(num + 1)
             sys.exit(os.EX_OK)  # no error
 
