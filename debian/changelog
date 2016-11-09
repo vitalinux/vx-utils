@@ -1,3 +1,12 @@
+vx-utils (1.5-1) unstable; urgency=low
+
+  * Se corrige la función get_user_info para que funcione con el ID del usuario,
+    además del nombre (por si contiene más de 8 caracteres).
+  * Se modifica el script vx-user-get-mozilla-profile para evitar el error que
+    el usuario no exista a la hora de buscar la información del perfil.
+
+ -- Jose Antonio Chavarría <jachavar@gmail.com>  Wed, 9 Nov 2016 07:59:13 +0100
+
 vx-utils (1.4-1) unstable; urgency=low
 
   * Se incluye la licencia en los ficheros donde faltaba.
