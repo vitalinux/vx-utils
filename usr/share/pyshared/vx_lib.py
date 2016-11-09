@@ -302,19 +302,22 @@ def get_user_info(user):
     """
 
     try:
-        info = pwd.getpwnam(user)
-
-        return {
-            'name': info[0],
-            'pwd': info[1],  # if 'x', encrypted
-            'uid': info[2],
-            'gid': info[3],
-            'fullname': info[4],
-            'home': info[5],
-            'shell': info[6]
-        }
+        _info = pwd.getpwnam(user)
     except KeyError:
-        return False
+        try:
+            _info = pwd.getpwuid(int(user))
+        except:
+            return False
+
+    return {
+        'name': _info[0],
+        'pwd': _info[1],  # if 'x', encrypted
+        'uid': _info[2],
+        'gid': _info[3],
+        'fullname': _info[4],
+        'home': _info[5],
+        'shell': _info[6]
+    }
 
 
 def user_is_root(user):

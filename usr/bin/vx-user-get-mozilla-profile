@@ -89,7 +89,13 @@ def run():
     else:
         app_path = '.thunderbird'
 
-    home = vx.get_user_info(args['user'])['home']
+    user_info = vx.get_user_info(args['user'])
+    if not user_info:
+        if not args['quiet']:
+            print('User {}, not exists!!!'.format(args['user']))
+        sys.exit(errno.EACCES)
+
+    home = user_info['home']
     ini_file = os.path.join(home, app_path, 'profiles.ini')
 
     if not os.path.exists(ini_file):
