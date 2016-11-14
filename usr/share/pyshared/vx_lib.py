@@ -225,7 +225,16 @@ def get_graphic_user(pid):
     string get_graphic_user(int pid)
     """
 
-    return commands.getoutput('ps hp %i -o "%%U"' % int(pid))
+    _user = commands.getoutput('ps hp %s -o %s' % (str(pid), '"%U"'))
+    if _user.isdigit():
+        # ps command not always show username (show uid if len(username) > 8)
+        _user_info = get_user_info(_user)
+        if _user_info is False:  # p.e. chroot environment
+            return 'root'
+        else:
+            return _user_info['name']
+
+    return _user
 
 
 def grep(pattern, source):
