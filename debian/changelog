@@ -1,3 +1,10 @@
+vx-utils (1.6-1) unstable; urgency=low
+
+  * Se corrige la función get_graphic_user para que siempre devuelva un nombre
+    de usuario y no un ID si el nombre tiene más de 8 caracteres.
+
+ -- Jose Antonio Chavarría <jachavar@gmail.com>  Mon, 14 Nov 2016 08:15:41 +0100
+
 vx-utils (1.5-1) unstable; urgency=low
 
   * Se corrige la función get_user_info para que funcione con el ID del usuario,
