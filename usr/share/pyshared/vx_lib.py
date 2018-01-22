@@ -196,17 +196,17 @@ def get_hostname():
 def get_graphic_pid():
     """
     list get_graphic_pid(void)
-    Detects Gnome, KDE, Xfce, Xfce4, LXDE
+    Detects Gnome, KDE, Xfce, Xfce4, LXDE, Unity, MATE
     """
 
     _graphic_environments = [
-        'gnome-session-binary',  # Gnome
+        'gnome-session-binary',  # Gnome & Unity
         'gnome-session',         # Gnome
         'ksmserver',             # KDE
         'xfce-mcs-manage',       # Xfce
         'xfce4-session',         # Xfce4
         'lxsession',             # LXDE
-        'mate-session',    # MATE
+        'mate-session',          # MATE
     ]
     for _process in _graphic_environments:
         _pid = commands.getoutput('pidof %s' % _process)
