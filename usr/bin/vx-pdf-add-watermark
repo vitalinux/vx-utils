@@ -1,0 +1,109 @@
+#!/usr/bin/env python
+# -*- coding: UTF-8 -*-
+
+# Copyright (c) 2017-2018 Jose Antonio Chavarría <jachavar@gmail.com>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+import os
+import sys
+import errno
+import argparse
+import commands
+
+__author__ = 'Jose Antonio Chavarría'
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description='Add a watermark in a PDF file as a background of other PDF',
+        epilog='Vitalinux utility'
+    )
+
+    parser.add_argument(
+        '-w', '--watermark',
+        action='store',
+        help='PDF file with the watermark',
+        required=True
+    )
+
+    parser.add_argument(
+        '-s', '--suffix',
+        action='store',
+        help='Suffix string to append to output PDF',
+        required=False,
+        default='_'
+    )
+
+    parser.add_argument(
+        'file',
+        nargs='+',
+        action='store',
+        help='File(s) to add watermark'
+    )
+
+    parser.add_argument(
+        '-q', '--quiet',
+        action='store_true',
+        help='enable silence mode (no verbose)'
+    )
+
+    return vars(parser.parse_args())
+
+
+def is_pdf(filename):
+    ext = os.path.splitext(filename)
+    if len(ext) < 2 or ext[1].lower() != '.pdf':
+        return False
+
+    return True
+
+
+def run():
+    args = parse_args()
+
+    output = commands.getoutput('which pdftk')
+    if not output:
+        if not args['quiet']:
+            print('pdftk command not found')
+        sys.exit(errno.EPERM)
+
+    if not os.path.isfile(args['watermark']):
+        if not args['quiet']:
+            print('Watermark file "%s" not found' % args['watermark'])
+        sys.exit(errno.ENOENT)
+
+    for _f in args['file']:
+        if not is_pdf(_f):
+            if not args['quiet']:
+                print('File "%s" is not a PDF' % _f)
+            continue
+
+        output_file = '{}{}.pdf'.format(
+            os.path.splitext(_f)[0],
+            args['suffix']
+        )
+        output = commands.getoutput(
+            'pdftk {} background {} output {}'.format(
+                _f, args['watermark'], output_file
+            )
+        )
+        if output:
+            if not args['quiet']:
+                print(output)
+
+    sys.exit(os.EX_OK)
+
+if __name__ == '__main__':
+    run()
