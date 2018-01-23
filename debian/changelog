@@ -1,3 +1,15 @@
+vx-utils (1.7-1) unstable; urgency=low
+
+  * Se añade el script vx-pdf-add-watermark y se añade como paquete recomendado
+    pdftk.
+  * Se añade el script vx-dconf-array para cambiar valores de claves con
+    esquemas de tipo "relocatable".
+  * Se modifica el script vx-user-get-mozilla-profile para que acepte
+    directorios como argumento (por ejemplo para /etc/skel). Será el argumento
+    user el que, si hay un carácter '/', se considerará como directorio.
+
+ -- Jose Antonio Chavarría <jachavar@gmail.com>  Fri, 19 Jan 2018 14:32:41 +0100
+
 vx-utils (1.6-1) unstable; urgency=low
 
   * Se corrige la función get_graphic_user para que siempre devuelva un nombre
