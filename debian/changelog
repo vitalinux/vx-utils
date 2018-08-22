@@ -1,3 +1,12 @@
+vx-utils (1.8-1) unstable; urgency=low
+
+  * Se corrigen las funciones get_graphic_user y get_graphic_pid para que
+    funcionen bien en entornos Ubuntu Bionic (con GDM como gestor de sesiones).
+  * Se elimina el script vx-gconf (y la dependencia con gconf2) por
+    considerarse obsoleto con sistemas Ubuntu 18.04.
+
+ -- Jose Antonio Chavarría <jachavar@gmail.com>  Wed, 22 Aug 2018 08:06:41 +0200
+
 vx-utils (1.7-1) unstable; urgency=low
 
   * Se añade el script vx-pdf-add-watermark y se añade como paquete recomendado
