@@ -9,7 +9,7 @@ Homepage: https://github.com/Ayuntamiento-Zaragoza/vx-utils
 
 Package: vx-utils
 Architecture: all
-Depends: ${misc:Depends}, ${python:Depends}, gconf2, rpl, gnome-icon-theme-full | gnome-icon-theme, libnotify-bin, zenity, python-netifaces
+Depends: ${misc:Depends}, ${python:Depends}, rpl, gnome-icon-theme-full | gnome-icon-theme, libnotify-bin, zenity, python-netifaces
 Recommends: pdftk
 Description: Scripts with utilities for the command line
  Commands built in Python and Bash that can be used in the processes of

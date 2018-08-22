@@ -1,7 +1,6 @@
-#!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
-# Copyright (c) 2011-2016 Jose Antonio Chavarría <jachavar@gmail.com>
+# Copyright (c) 2011-2018 Jose Antonio Chavarría <jachavar@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,16 +17,16 @@
 
 import os
 import sys
-import ConfigParser
 import subprocess
+import ConfigParser
 import commands
 import time
-import StringIO
 import difflib
 import pwd
 import platform
 import errno
 import re
+import fcntl
 import socket
 import struct
 import netifaces
@@ -38,6 +37,7 @@ import gettext
 _ = gettext.gettext
 
 __author__ = 'Jose Antonio Chavarría'
+__license__ = 'GPLv3'
 
 
 def get_config(ini_file, section):
@@ -59,8 +59,13 @@ def get_config(ini_file, section):
 
 def execute(cmd, verbose=False, interactive=True):
     """
-    (int, string, string) execute(string cmd, bool verbose=False, bool interactive=True)
+    (int, string, string) execute(
+        string cmd,
+        bool verbose=False,
+        bool interactive=True
+    )
     """
+    _output_buffer = ''
 
     if verbose:
         print(cmd)
@@ -80,7 +85,28 @@ def execute(cmd, verbose=False, interactive=True):
             stdout=subprocess.PIPE
         )
 
+        if verbose:
+            fcntl.fcntl(
+                _process.stdout.fileno(),
+                fcntl.F_SETFL,
+                fcntl.fcntl(
+                    _process.stdout.fileno(),
+                    fcntl.F_GETFL
+                ) | os.O_NONBLOCK,
+            )
+
+            while _process.poll() is None:
+                readx = select.select([_process.stdout.fileno()], [], [])[0]
+                if readx:
+                    chunk = _process.stdout.read()
+                    if chunk and chunk != '\n':
+                        print(chunk)
+                    _output_buffer = '%s%s' % (_output_buffer, chunk)
+
     _output, _error = _process.communicate()
+
+    if not interactive and _output_buffer:
+        _output = _output_buffer
 
     return _process.returncode, _output, _error
 
@@ -188,9 +214,10 @@ def get_gateway():
 def get_hostname():
     """
     string get_hostname(void)
+    Returns only hostname (without domain)
     """
 
-    return platform.uname()[1]
+    return platform.node().split('.')[0]
 
 
 def get_graphic_pid():
@@ -209,23 +236,24 @@ def get_graphic_pid():
         'mate-session',          # MATE
     ]
     for _process in _graphic_environments:
-        _pid = commands.getoutput('pidof %s' % _process)
-        if _pid != '':
-            # sometimes the command pidof return multiples pids,
-            # then we use the last pid
-            _pid_list = _pid.split(' ')
-
-            return [_pid_list.pop(), _process]
+        _pid = commands.getoutput('pidof -s {}'.format(_process))
+        if _pid:
+            return [_pid, _process]
 
     return [None, None]
 
 
-def get_graphic_user(pid):
+def get_graphic_user(pid=0):
     """
-    string get_graphic_user(int pid)
+    string get_graphic_user(int pid=0)
     """
 
-    _user = commands.getoutput('ps hp %s -o %s' % (str(pid), '"%U"'))
+    if not pid:
+        pid = get_graphic_pid()[0]
+        if not pid:
+            return ''
+
+    _user = commands.getoutput('ps hp {} -o "%U"'.format(pid))
     if _user.isdigit():
         # ps command not always show username (show uid if len(username) > 8)
         _user_info = get_user_info(_user)
@@ -251,13 +279,20 @@ def grep(pattern, source):
 
 def get_user_display_graphic(pid, timeout=10, interval=1):
     """
-    string get_user_display_graphic(string pid, int timeout=10, int interval=1)
+    string get_user_display_graphic(
+        string pid,
+        int timeout=10,
+        int interval=1
+    )
     """
 
     _display = []
     while not _display and timeout > 0:
         # a data line ends in 0 byte, not newline
-        _display = grep('DISPLAY', open("/proc/%s/environ" % pid).read().split('\0'))
+        _display = grep(
+            'DISPLAY',
+            open("/proc/%s/environ" % pid).read().split('\0')
+        )
         if _display:
             _display = _display[0].split('=').pop()
             return _display
@@ -315,7 +350,7 @@ def get_user_info(user):
     except KeyError:
         try:
             _info = pwd.getpwuid(int(user))
-        except:
+        except KeyError:
             return False
 
     return {
@@ -323,7 +358,8 @@ def get_user_info(user):
         'pwd': _info[1],  # if 'x', encrypted
         'uid': _info[2],
         'gid': _info[3],
-        'fullname': _info[4],
+        # http://en.wikipedia.org/wiki/Gecos_field
+        'fullname': _info[4].split(',', 1)[0],
         'home': _info[5],
         'shell': _info[6]
     }
@@ -344,21 +380,31 @@ def write_file(filename, content):
     bool write_file(string filename, string content)
     """
 
+    _dir = os.path.dirname(filename)
+    if not os.path.exists(_dir):
+        try:
+            os.makedirs(_dir, 0o0777)
+        except OSError:
+            return False
+
+    _file = None
     try:
-        _f = open(filename, 'wb')
-        _f.write(content)
-        _f.flush()
-        os.fsync(_f.fileno())
-        _f.close()
+        _file = open(filename, 'wb')
+        _file.write(content)
+        _file.flush()
+        os.fsync(_file.fileno())
+        _file.close()
 
         return True
-    except:
+    except IOError:
         return False
+    finally:
+        if _file is not None:
+            _file.close()
 
 
 def query_yes_no(question, default="yes"):
-    """
-    Ask a yes/no question via raw_input() and return their answer.
+    """Ask a yes/no question via raw_input() and return their answer.
 
     "question" is a string that is presented to the user.
     "default" is the presumed answer if the user just hits <Enter>.
@@ -367,7 +413,7 @@ def query_yes_no(question, default="yes"):
 
     The "answer" return value is one of "yes" or "no".
 
-    based in http://code.activestate.com/recipes/577058/
+    Based in http://code.activestate.com/recipes/577058/
     """
     valid = {
         _("yes"): "yes", _("y"): "yes",
