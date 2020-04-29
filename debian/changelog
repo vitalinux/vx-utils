@@ -1,3 +1,15 @@
+vx-utils (1.9-1) unstable; urgency=low
+
+  * Cambios para adecuarse al final de Python2 y trabajar sólo con Python3
+    (Ubuntu 20.04).
+  * Se modifica el script vx-user-get-mozilla-profile para adecuarlo a las
+    nuevas versiones de los programas en Ubuntu 20.04.
+  * Se modifica la función user_is_root. Se mantiene el parámetro user, pero
+    como opcional, por compatibilidad hacia atrás, ya que no es necesario.
+  * Cambio de licencia a GPL-3.0+.
+
+ -- Jose Antonio Chavarría <jachavar@gmail.com>  Wed, 29 Apr 2020 12:37:41 +0200
+
 vx-utils (1.8-1) unstable; urgency=low
 
   * Se corrigen las funciones get_graphic_user y get_graphic_pid para que
