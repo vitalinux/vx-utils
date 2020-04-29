@@ -1,7 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/python3
 # -*- coding: UTF-8 -*-
 
-# Copyright (c) 2013-2018 Jose Antonio Chavarría <jachavar@gmail.com>
+# Copyright (c) 2013-2020 Jose Antonio Chavarría <jachavar@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,8 +21,8 @@
 import os
 import sys
 import errno
-import ConfigParser
 import argparse
+import configparser
 
 import vx_lib as vx
 
@@ -31,7 +31,8 @@ __author__ = 'Jose Antonio Chavarría'
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description='Obtain default profile of a Mozilla app (Firefox or Thunderbird) for an user',
+        description='Obtain default profile of a Mozilla app (Firefox or '
+        'Thunderbird) for an user',
         epilog='Vitalinux utility'
     )
 
@@ -63,12 +64,12 @@ def parse_args():
 
 
 def get_profile_path(ini_file):
-    config = ConfigParser.RawConfigParser()
+    config = configparser.RawConfigParser()
     config.read(ini_file)
 
     sections = config.sections()
-    if 'General' in sections:
-        sections.remove('General')
+    not_profiles = ('General', 'Install')
+    sections = [x for x in sections if not x.startswith(not_profiles)]
 
     if len(sections) == 1:
         if config.has_option(sections[0], 'path'):
@@ -127,6 +128,7 @@ def run():
     print(profile_path)
 
     sys.exit(os.EX_OK)  # no error
+
 
 if __name__ == '__main__':
     run()

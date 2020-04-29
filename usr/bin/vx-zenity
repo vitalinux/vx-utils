@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (c) 2012-2016 Jose Antonio Chavarría <jachavar@gmail.com>
+# Copyright (c) 2012-2020 Jose Antonio Chavarría <jachavar@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -40,7 +40,7 @@ _ZENITY_CMD=/usr/bin/zenity
 _OPTS=$@
 debug $_OPTS
 
-_PID=$(python -c "import vx_lib as vx; print(vx.get_graphic_pid()[0])")
+_PID=$(python3 -c "import vx_lib as vx; print(vx.get_graphic_pid()[0])")
 if [ -z "$_PID" ]
 then
     exit 1 # nothing to do
@@ -54,7 +54,7 @@ _DBUS_SESSION_BUS_ADDRESS=$(/bin/grep -z DBUS_SESSION_BUS_ADDRESS \
 _USER=$(vx-get-user-graphic)
 debug $_USER
 
-_DISPLAY=$(python -c "import vx_lib as vx; print(vx.get_user_display_graphic($_PID))")
+_DISPLAY=$(python3 -c "import vx_lib as vx; print(vx.get_user_display_graphic($_PID))")
 debug $_DISPLAY
 
 if [ $# -eq 0 ]

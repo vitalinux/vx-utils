@@ -1,7 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/python3
 # -*- coding: UTF-8 -*-
 
-# Copyright (c) 2017-2018 Jose Antonio Chavarría <jachavar@gmail.com>
+# Copyright (c) 2017-2020 Jose Antonio Chavarría <jachavar@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@ import os
 import sys
 import errno
 import argparse
-import commands
+import subprocess
 
 __author__ = 'Jose Antonio Chavarría'
 
@@ -73,7 +73,7 @@ def is_pdf(filename):
 def run():
     args = parse_args()
 
-    output = commands.getoutput('which pdftk')
+    output = subprocess.getoutput('which pdftk')
     if not output:
         if not args['quiet']:
             print('pdftk command not found')
@@ -94,7 +94,7 @@ def run():
             os.path.splitext(_f)[0],
             args['suffix']
         )
-        output = commands.getoutput(
+        output = subprocess.getoutput(
             'pdftk {} background {} output {}'.format(
                 _f, args['watermark'], output_file
             )
@@ -104,6 +104,7 @@ def run():
                 print(output)
 
     sys.exit(os.EX_OK)
+
 
 if __name__ == '__main__':
     run()

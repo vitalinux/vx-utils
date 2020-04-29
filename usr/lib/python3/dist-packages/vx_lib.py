@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 
-# Copyright (c) 2011-2018 Jose Antonio Chavarría <jachavar@gmail.com>
+# Copyright (c) 2011-2020 Jose Antonio Chavarría <jachavar@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,18 +18,18 @@
 import os
 import sys
 import subprocess
-import ConfigParser
-import commands
 import time
 import difflib
 import pwd
 import platform
 import errno
 import re
+import select
 import fcntl
 import socket
 import struct
 import netifaces
+import configparser
 
 # i18n, l10n
 import locale
@@ -49,7 +49,7 @@ def get_config(ini_file, section):
         return errno.ENOENT  # FILE_NOT_FOUND
 
     try:
-        config = ConfigParser.RawConfigParser()
+        config = configparser.RawConfigParser()
         config.read(ini_file)
 
         return dict(config.items(section))
@@ -101,12 +101,17 @@ def execute(cmd, verbose=False, interactive=True):
                     chunk = _process.stdout.read()
                     if chunk and chunk != '\n':
                         print(chunk)
-                    _output_buffer = '%s%s' % (_output_buffer, chunk)
+                    _output_buffer = '{}{}'.format(_output_buffer, chunk)
 
     _output, _error = _process.communicate()
 
     if not interactive and _output_buffer:
         _output = _output_buffer
+
+    if isinstance(_output, bytes) and not isinstance(_output, str):
+        _output = str(_output, encoding='utf8')
+    if isinstance(_error, bytes) and not isinstance(_error, str):
+        _error = str(_error, encoding='utf8')
 
     return _process.returncode, _output, _error
 
@@ -170,20 +175,20 @@ def ipv4_cidr_to_netmask(bits):
 def get_net_device_info():
     devices = dict()
 
-    cmd_ip = 'LC_ALL=C /bin/ip --family inet addr show label %s'
-    cmd_mac = 'LC_ALL=C /bin/ip link show %s'
+    cmd_ip = 'LC_ALL=C /bin/ip --family inet addr show label {}'
+    cmd_mac = 'LC_ALL=C /bin/ip link show {}'
 
     interfaces = get_interfaces()
     for iface in interfaces:
-        output = commands.getoutput(cmd_ip % iface)
-        if output and output.find('state UP'):
-            tmp = output.split('\n')
-            data = tmp[1].strip().split(' ')[1]
-            ip, mask = data.split('/')
-
-            output = commands.getoutput(cmd_mac % iface)
+        output = subprocess.getoutput(cmd_mac.format(iface))
+        if output and output.find('state UP') != -1:
             tmp = output.split('\n')
             mac = tmp[1].strip().split(' ')[1]
+
+            output = subprocess.getoutput(cmd_ip.format(iface))
+            tmp = output.split('\n')
+            data = tmp[0].strip().split(' ')[1]
+            ip, mask = data.split('/')
 
             devices[iface] = {
                 'ip': ip,
@@ -236,7 +241,7 @@ def get_graphic_pid():
         'mate-session',          # MATE
     ]
     for _process in _graphic_environments:
-        _pid = commands.getoutput('pidof -s {}'.format(_process))
+        _pid = subprocess.getoutput('pidof -s {}'.format(_process))
         if _pid:
             return [_pid, _process]
 
@@ -253,7 +258,7 @@ def get_graphic_user(pid=0):
         if not pid:
             return ''
 
-    _user = commands.getoutput('ps hp {} -o "%U"'.format(pid))
+    _user = subprocess.getoutput('ps hp {} -o "%U"'.format(pid))
     if _user.isdigit():
         # ps command not always show username (show uid if len(username) > 8)
         _user_info = get_user_info(_user)
@@ -291,7 +296,7 @@ def get_user_display_graphic(pid, timeout=10, interval=1):
         # a data line ends in 0 byte, not newline
         _display = grep(
             'DISPLAY',
-            open("/proc/%s/environ" % pid).read().split('\0')
+            open('/proc/{}/environ'.format(pid)).read().split('\0')
         )
         if _display:
             _display = _display[0].split('=').pop()
@@ -365,14 +370,13 @@ def get_user_info(user):
     }
 
 
-def user_is_root(user):
+def user_is_root(user=None):
     """
-    bool user_is_root(string user)
+    bool user_is_root(string user=None)
+    user parameter is kept for backward compatibility
     """
 
-    user_info = get_user_info(user)
-
-    return user_info and user_info['uid'] == 0
+    return os.geteuid() == 0
 
 
 def write_file(filename, content):
@@ -390,7 +394,10 @@ def write_file(filename, content):
     _file = None
     try:
         _file = open(filename, 'wb')
-        _file.write(content)
+        try:
+            _file.write(bytes(content))
+        except TypeError:
+            _file.write(bytes(content, encoding='utf8'))
         _file.flush()
         os.fsync(_file.fileno())
         _file.close()
@@ -430,7 +437,7 @@ def query_yes_no(question, default="yes"):
 
     while 1:
         sys.stdout.write(question + prompt)
-        choice = raw_input().lower()
+        choice = input().lower()
         if default is not None and choice == '':
             return default
         elif choice in valid.keys():

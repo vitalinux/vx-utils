@@ -1,16 +1,15 @@
 Source: vx-utils
 Section: utils
-Priority: extra
+Priority: optional
 Maintainer: Jose Antonio Chavarría <jachavar@gmail.com>
-Build-Depends: debhelper (>= 8.0.0), pandoc, python, dh-python | python-support
-X-Python-Version: >= 2.7
-Standards-Version: 3.9.7
+Build-Depends: debhelper (>= 11), pandoc, dh-python, python3-all (>=3.3)
+Standards-Version: 4.1.4
 Homepage: https://github.com/Ayuntamiento-Zaragoza/vx-utils
 
 Package: vx-utils
 Architecture: all
-Depends: ${misc:Depends}, ${python:Depends}, rpl, gnome-icon-theme-full | gnome-icon-theme, libnotify-bin, zenity, python-netifaces
+Depends: ${misc:Depends}, ${python3:Depends}, rpl, gnome-icon-theme-full | gnome-icon-theme, libnotify-bin, zenity, python3-netifaces
 Recommends: pdftk
 Description: Scripts with utilities for the command line
  Commands built in Python and Bash that can be used in the processes of
- installation of other packages of distribution Vitalinux and derived
+ installation of other packages of distribution Vitalinux and derived.

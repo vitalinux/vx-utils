@@ -10,10 +10,9 @@
 #export DH_VERBOSE=1
 
 %:
-	dh $@ --with python2
+	dh $@ --with python3
 
 override_dh_auto_build:
-	pandoc -s -r markdown -w man man/vx-gconf.1.md -o man/vx-gconf.1
 	pandoc -s -r markdown -w man man/vx-line-comment.1.md -o man/vx-line-comment.1
 	pandoc -s -r markdown -w man man/vx-line-insert.1.md -o man/vx-line-insert.1
 	pandoc -s -r markdown -w man man/vx-line-delete.1.md -o man/vx-line-delete.1
