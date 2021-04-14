@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 
-# Copyright (c) 2011-2020 Jose Antonio Chavarría <jachavar@gmail.com>
+# Copyright (c) 2011-2021 Jose Antonio Chavarría <jachavar@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -185,10 +185,13 @@ def get_net_device_info():
             tmp = output.split('\n')
             mac = tmp[1].strip().split(' ')[1]
 
+            ip = ''
+            mask = 0
             output = subprocess.getoutput(cmd_ip.format(iface))
-            tmp = output.split('\n')
-            data = tmp[0].strip().split(' ')[1]
-            ip, mask = data.split('/')
+            if output:
+                tmp = output.split('\n')
+                data = tmp[0].strip().split(' ')[1]
+                ip, mask = data.split('/')
 
             devices[iface] = {
                 'ip': ip,
