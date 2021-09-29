@@ -1,3 +1,10 @@
+vx-utils (1.11-1) unstable; urgency=low
+
+  * Se añade un parámetro opcional en los scripts vx-divert-add y
+    vx-divert-remove para realizar la operación sobre un solo fichero.
+
+ -- Jose Antonio Chavarría <jachavar@gmail.com>  Wed, 29 Sep 2021 09:04:41 +0200
+
 vx-utils (1.10-1) unstable; urgency=low
 
   * Se corrige la función get_net_device_info para el caso en que el interfaz
