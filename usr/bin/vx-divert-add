@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (c) 2013-2016 Jose Antonio Chavarría <jachavar@gmail.com>
+# Copyright (c) 2013-2021 Jose Antonio Chavarría <jachavar@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,15 +16,31 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 # Permissions: root:root 755
-# Syntax: vx-divert-add <package>
+# Syntax: vx-divert-add <package> [<file>]
 # Realiza el divert de todos los ficheros del paquete pasado como argumento
+# Si se pasa un segundo argumento, sólo se hace el divert de ese fichero
 # Los ficheros deben estar en la ruta /usr/share/<package>/divert/
 
-_PKG=$1
-for _FILE in $(vx-divert-list-files $_PKG)
-do
-    _DIRNAME="$(/usr/bin/dirname $_FILE)"
-    _BASENAME="$(/usr/bin/basename $_FILE)"
-    dpkg-divert --add --package $_PKG --rename --divert "$_DIRNAME/.$_BASENAME.divert" "$_FILE"
+function add_divert
+{
+    local _PKG=$1
+    local _FILE=$2
+
+    _DIRNAME=$(/usr/bin/dirname "$_FILE")
+    _BASENAME=$(/usr/bin/basename "$_FILE")
+    dpkg-divert --add --package "$_PKG" --rename --divert "$_DIRNAME/.$_BASENAME.divert" "$_FILE"
     ln -sf "/usr/share/$_PKG/divert$_FILE" "$_FILE"
-done
+}
+
+_PKG=$1
+_FILE=$2
+
+if [ -n "$_FILE" ]
+then
+    add_divert "$_PKG" "$_FILE"
+else
+    for _ITEM in $(vx-divert-list-files "$_PKG")
+    do
+        add_divert "$_PKG" "$_ITEM"
+    done
+fi
