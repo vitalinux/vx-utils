@@ -1,0 +1,167 @@
+#!/usr/bin/python3
+# -*- coding: UTF-8 -*-
+
+# Copyright (c) 2024 Jose Antonio Chavarría <jachavar@gmail.com>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+import os
+import sys
+import pwd
+import errno
+import argparse
+import subprocess
+import json
+
+import vx_lib as vx
+
+__author__ = 'Jose Antonio Chavarría'
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description='Returns monitor(s) information',
+        epilog='Vitalinux utility'
+    )
+
+    parser.add_argument(
+        '-j', '--json',
+        action='store_true',
+        help='displays info in JSON format'
+    )
+
+    return vars(parser.parse_args())
+
+
+def get_monitor_info():
+    info = []
+
+    cmd = 'ddcutil detect'
+    output = subprocess.getoutput(cmd).split('\n\n')
+
+    if not len(output):
+        return info
+
+    for item in output:
+        item_list = item.split('\n')
+
+        i2c_bus = vx.grep('\s*I2C bus', item_list)
+        if len(i2c_bus) == 1:
+            i2c_bus = i2c_bus[0].split('/dev/i2c-')[1]
+
+            model = vx.grep('\s*Model', item_list)
+            if len(model) == 1:
+                model = model[0].split(':')[1].strip()
+
+            serial = vx.grep('\s*Serial', item_list)
+            if len(serial) == 1:
+                serial = serial[0].split(':')[1].strip()
+
+            year = vx.grep('\s*Manufacture year', item_list)
+            if len(year) == 1:
+                year = year[0].split(':')[1].strip()
+
+            info.append({
+                'bus': i2c_bus,
+                'model': model if isinstance(model, str) else '',
+                'serial': serial if isinstance(serial, str) else '',
+                'year': year if isinstance(year, str) else '',
+                'resolution': '',
+                'offset': '',
+                'connection': {
+                    'monitor': '',
+                    'computer': ''
+                }
+            })
+
+    return info
+
+
+def get_display():
+    pid = vx.get_graphic_pid()[0]
+
+    return vx.get_user_display_graphic(pid)
+
+
+def get_monitor_extended_info(info):
+    display = get_display()
+    cmd = 'xrandr --display {} -q | grep " connected"'.format(display)
+    xrandr = subprocess.getoutput(cmd).split('\n')
+
+    for item in info:
+        resolution = ''
+        offset = ''
+        computer_conn = ''
+        monitor_conn = ''
+
+        cmd = 'ddcutil --bus={} getvcp 60'.format(item['bus'])
+        output = subprocess.getoutput(cmd)
+        if output:
+            monitor_conn = output.split(':')[1].split('(')[0].strip()
+
+        xrandr_monitor = xrandr.pop(0).split()
+        if 'primary' in xrandr_monitor:
+            xrandr_monitor.remove('primary')
+
+        computer_conn = xrandr_monitor[0]
+        data = xrandr_monitor[2].split('+')
+        resolution = data[0]
+        offset = '+{}'.format('+'.join(data[1:]))
+
+        item.update({
+            'resolution': resolution,
+            'offset': offset,
+            'connection': {
+                'monitor': monitor_conn,
+                'computer': computer_conn
+            }
+        })
+
+    return info
+
+
+def run():
+    args = parse_args()
+
+    if not vx.user_is_root():
+        print('User must be root to run this command.')
+        sys.exit(errno.ENOEXEC)
+
+    info = get_monitor_info()
+    if not len(info):
+        print('Monitor info not available.')
+        sys.exit(errno.ENODATA)
+
+    info = get_monitor_extended_info(info)
+
+    if args['json']:
+        print(json.dumps(info))
+        sys.exit(os.EX_OK)
+
+    for monitor in info:
+        print('Monitor found in bus: {}'.format(monitor['bus']))
+        print('\tModel: {}'.format(monitor['model']))
+        print('\tSerial Number: {}'.format(monitor['serial']))
+        print('\tManufacture Year: {}'.format(monitor['year']))
+        print('\tResolution: {}'.format(monitor['resolution']))
+        print('\tOffset: {}'.format(monitor['offset']))
+        print('\tMonitor Connection: {}'.format(monitor['connection']['monitor']))
+        print('\tComputer Connection: {}'.format(monitor['connection']['computer']))
+        print()
+
+    sys.exit(os.EX_OK)
+
+
+if __name__ == '__main__':
+    run()

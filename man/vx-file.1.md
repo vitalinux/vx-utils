@@ -22,23 +22,23 @@ OPTIONS
 
 **-q**, **--quiet**: enable silence mode (no verbose)
 
-**-b**, **--backup**: copy **file** to **file.azlsaved**
+**-b**, **--backup**: copy **file** to **file.vxsaved**
 
-**-c**, **--change**: move **file.azl** to **file**
+**-c**, **--change**: move **file.vx** to **file**
 
-**-r**, **--restore**: move **file.azlsaved** to **file**
+**-r**, **--restore**: move **file.vxsaved** to **file**
 
 EXAMPLES
 ========
-Backup /etc/default/grub (generated file).  Creates /etc/default/grub.azlsaved file
+Backup /etc/default/grub (generated file).  Creates /etc/default/grub.vxsaved file
 
     vx-file --backup /etc/default/grub
 
-Change /etc/default/grub.  Must be exists /etc/default/grub.azl file
+Change /etc/default/grub.  Must be exists /etc/default/grub.vx file
 
     vx-file --change /etc/default/grub
 
-Restore /etc/default/grub backup.  Must be exists /etc/default/grub.azlsaved file
+Restore /etc/default/grub backup.  Must be exists /etc/default/grub.vxsaved file
 
     vx-file --restore /etc/default/grub
 

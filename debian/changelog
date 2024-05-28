@@ -1,3 +1,21 @@
+vx-utils (1.12-1) unstable; urgency=low
+
+  * Se detecta LXQt en la función get_graphic_pid.
+  * Se añade el script vx-monitor-info. Se añade la dependencia de ddcutil.
+  * Se modifica el script vx-user-get-mozilla-profile para añadir el caso de
+    Firefox ESR como aplicación a consultar.
+  * Se modifica el script vx-pdf-add-watermark para añadir un argumento para
+    especificar la operación a realizar (background por defecto). Los valores
+    permitidos son 'background' y 'multistamp'.
+  * Se corrige la función get_graphic_user para que no devuelva espacios en
+    blanco.
+  * Se cambia de dependencia a recomendación gnome-icon-theme-full y su
+    alternativa para no hacer depender al paquete de un entorno de escritorio.
+  * Se añade el script vx-get-dbus-session.
+  * Los scripts vx-notify y vx-zenity hacen uso de vx-get-dbus-session.
+
+ -- Jose Antonio Chavarría <jachavar@gmail.com>  Tue, 28 May 2024 11:47:41 +0200
+
 vx-utils (1.11-1) unstable; urgency=low
 
   * Se añade un parámetro opcional en los scripts vx-divert-add y

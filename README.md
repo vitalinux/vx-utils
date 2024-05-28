@@ -10,4 +10,6 @@ installation of other packages of distribution Vitalinux and derived.
 Build
 =====
 
+```bash
 $ debuild --no-tgz-check -us -uc
+```

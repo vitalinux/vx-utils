@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (c) 2012-2024 Jose Antonio Chavarría <jachavar@gmail.com>
+# Copyright (c) 2024 Jose Antonio Chavarría <jachavar@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,15 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-# File: /usr/bin/vx-zenity
-# Permissions: root:root 755 (pero sólo root tiene privilegios para ejecutarlo)
-# Example: vx-zenity --notification --window-icon=error --text=\"word1 word2 word3\"
-
-if [ $UID -ne 0 ]
-then
-    echo "Only root could execute this script."
-    exit 1
-fi
+# File: /usr/bin/vx-get-dbus-session
+# Permissions: root:root 755
+# Example: vx-get-dbus-session
 
 _DEBUG=0
 function debug
@@ -37,11 +31,6 @@ function debug
     fi
 }
 
-_ZENITY_CMD=/usr/bin/zenity
-
-_OPTS=$@
-debug $_OPTS
-
 _PID=$(python3 -c "import vx_lib as vx; print(vx.get_graphic_pid()[0])")
 if [ -z "$_PID" ]
 then
@@ -49,22 +38,9 @@ then
 fi
 debug "$_PID"
 
-_DISPLAY=$(python3 -c "import vx_lib as vx; print(vx.get_user_display_graphic($_PID))")
-debug "$_DISPLAY"
+# find DBUS session bus for this session
+_DBUS_SESSION=$(/bin/grep -z DBUS_SESSION_BUS_ADDRESS "/proc/$_PID/environ" \
+    | /bin/tr '\0' '\n' | /bin/sed -e s/DBUS_SESSION_BUS_ADDRESS=//)
 
-_DBUS_SESSION_BUS_ADDRESS=$(vx-get-dbus-session)
-debug "$_DBUS_SESSION_BUS_ADDRESS"
-
-_USER=$(vx-get-user-graphic)
-debug "$_USER"
-
-if [ $# -eq 0 ]
-then
-    $_ZENITY_CMD --help --display="$_DISPLAY"
-    exit 1 # nothing to do
-fi
-
-DBUS_SESSION_BUS_ADDRESS=$_DBUS_SESSION_BUS_ADDRESS \
-    su -c "$_ZENITY_CMD --display=$_DISPLAY $_OPTS" "$_USER"
-
+echo "$_DBUS_SESSION"
 exit 0

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (c) 2012-2020 Jose Antonio Chavarría <jachavar@gmail.com>
+# Copyright (c) 2012-2024 Jose Antonio Chavarría <jachavar@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -31,8 +31,14 @@ _USAGE_MSG="Usage: $(/usr/bin/basename $0) [-t expire_time] [-l level] <title> <
 
 if [ $# -eq 0 ]
 then
-    echo $_USAGE_MSG
+    echo "$_USAGE_MSG"
     exit 1
+fi
+
+if [ ! -d $_ICON_PATH ]
+then
+    echo "Install gnome-icon-theme-full or gnome-icon-theme package before execute this script"
+    exit 2
 fi
 
 _TIME=15000
@@ -43,18 +49,13 @@ function debug
 {
     if [ $_DEBUG -eq 1 ]
     then
-        local __TIMESTAMP=$(/bin/date +"%Y-%m-%d %H:%M:%S")
+        local __TIMESTAMP
+
+        __TIMESTAMP=$(/bin/date +"%Y-%m-%d %H:%M:%S")
         echo "## $__TIMESTAMP ## $@"
     fi
 }
 
-
-_PID=$(python3 -c "import vx_lib as vx; print(vx.get_graphic_pid()[0])")
-if [ -z "$_PID" ]
-then
-    exit 1 # nothing to do
-fi
-debug $_PID
 
 while getopts t:l:h _OP
 do
@@ -85,15 +86,14 @@ case $_LEVEL in
 esac
 
 _USER=$(vx-get-user-graphic)
-debug $_USER
+debug "$_USER"
 
 # find DBUS session bus for this session
-_DBUS_SESSION_BUS_ADDRESS=$(/bin/grep -z DBUS_SESSION_BUS_ADDRESS \
-  /proc/$_PID/environ | /bin/sed -e 's/DBUS_SESSION_BUS_ADDRESS=//')
-debug $_DBUS_SESSION_BUS_ADDRESS
+_DBUS_SESSION_BUS_ADDRESS=$(vx-get-dbus-session)
+debug "$_DBUS_SESSION_BUS_ADDRESS"
 
 # use it
 DBUS_SESSION_BUS_ADDRESS=$_DBUS_SESSION_BUS_ADDRESS \
-  su -c "$_NOTIFY_CMD --urgency=$_LEVEL --icon=$_ICON_PATH/$_ICON --expire-time=$_TIME '$_TITLE' '$_TEXT'" $_USER
+  su -c "$_NOTIFY_CMD --urgency=$_LEVEL --icon=$_ICON_PATH/$_ICON --expire-time=$_TIME '$_TITLE' '$_TEXT'" "$_USER"
 
 exit 0
