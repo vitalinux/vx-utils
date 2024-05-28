@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (c) 2012-2020 Jose Antonio Chavarría <jachavar@gmail.com>
+# Copyright (c) 2012-2024 Jose Antonio Chavarría <jachavar@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -30,7 +30,9 @@ function debug
 {
     if [ $_DEBUG -eq 1 ]
     then
-        local __TIMESTAMP=$(/bin/date +"%Y-%m-%d %H:%M:%S")
+        local __TIMESTAMP
+
+        __TIMESTAMP=$(/bin/date +"%Y-%m-%d %H:%M:%S")
         echo "## $__TIMESTAMP ## $@"
     fi
 }
@@ -45,25 +47,24 @@ if [ -z "$_PID" ]
 then
     exit 1 # nothing to do
 fi
-debug $_PID
-
-# find DBUS session bus for this session
-_DBUS_SESSION_BUS_ADDRESS=$(/bin/grep -z DBUS_SESSION_BUS_ADDRESS \
-  /proc/$_PID/environ | /bin/sed -e 's/DBUS_SESSION_BUS_ADDRESS=//')
-
-_USER=$(vx-get-user-graphic)
-debug $_USER
+debug "$_PID"
 
 _DISPLAY=$(python3 -c "import vx_lib as vx; print(vx.get_user_display_graphic($_PID))")
-debug $_DISPLAY
+debug "$_DISPLAY"
+
+_DBUS_SESSION_BUS_ADDRESS=$(azl-get-dbus-session)
+debug "$_DBUS_SESSION_BUS_ADDRESS"
+
+_USER=$(vx-get-user-graphic)
+debug "$_USER"
 
 if [ $# -eq 0 ]
 then
-    $_ZENITY_CMD --help --display=$_DISPLAY
+    $_ZENITY_CMD --help --display="$_DISPLAY"
     exit 1 # nothing to do
 fi
 
 DBUS_SESSION_BUS_ADDRESS=$_DBUS_SESSION_BUS_ADDRESS \
-    su -c "$_ZENITY_CMD --display=$_DISPLAY $_OPTS" $_USER
+    su -c "$_ZENITY_CMD --display=$_DISPLAY $_OPTS" "$_USER"
 
 exit 0
