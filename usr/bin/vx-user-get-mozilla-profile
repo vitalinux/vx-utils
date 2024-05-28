@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: UTF-8 -*-
 
-# Copyright (c) 2013-2020 Jose Antonio Chavarría <jachavar@gmail.com>
+# Copyright (c) 2013-2024 Jose Antonio Chavarría <jachavar@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -45,10 +45,10 @@ def parse_args():
     parser.add_argument(
         'app',
         action='store',
-        choices=['firefox', 'thunderbird'],
+        choices=['firefox', 'firefox-esr', 'thunderbird'],
         default='firefox',
         nargs='?',
-        help='Mozilla app (firefox or thunderbird)'
+        help='Mozilla app (firefox [default], firefox-esr or thunderbird)'
     )
 
     parser.add_argument(
@@ -88,6 +88,8 @@ def run():
 
     if args['app'] == 'firefox':
         app_path = os.path.join('.mozilla', 'firefox')
+    elif args['app'] == 'firefox-esr':
+        app_path = os.path.join('.mozilla', 'firefox-esr')
     else:
         app_path = '.thunderbird'
 
