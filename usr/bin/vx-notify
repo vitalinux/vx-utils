@@ -89,7 +89,7 @@ _USER=$(vx-get-user-graphic)
 debug "$_USER"
 
 # find DBUS session bus for this session
-_DBUS_SESSION_BUS_ADDRESS=$(azl-get-dbus-session)
+_DBUS_SESSION_BUS_ADDRESS=$(vx-get-dbus-session)
 debug "$_DBUS_SESSION_BUS_ADDRESS"
 
 # use it
