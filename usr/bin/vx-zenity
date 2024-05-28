@@ -52,7 +52,7 @@ debug "$_PID"
 _DISPLAY=$(python3 -c "import vx_lib as vx; print(vx.get_user_display_graphic($_PID))")
 debug "$_DISPLAY"
 
-_DBUS_SESSION_BUS_ADDRESS=$(azl-get-dbus-session)
+_DBUS_SESSION_BUS_ADDRESS=$(vx-get-dbus-session)
 debug "$_DBUS_SESSION_BUS_ADDRESS"
 
 _USER=$(vx-get-user-graphic)
