@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: UTF-8 -*-
 
-# Copyright (c) 2017-2020 Jose Antonio Chavarría <jachavar@gmail.com>
+# Copyright (c) 2017-2024 Jose Antonio Chavarría <jachavar@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -44,6 +44,15 @@ def parse_args():
         help='Suffix string to append to output PDF',
         required=False,
         default='_'
+    )
+
+    parser.add_argument(
+        '-o', '--operation',
+        action='store',
+        choices=['background', 'multistamp'],
+        default='background',
+        nargs='?',
+        help='Watermark operation'
     )
 
     parser.add_argument(
@@ -95,8 +104,8 @@ def run():
             args['suffix']
         )
         output = subprocess.getoutput(
-            'pdftk {} background {} output {}'.format(
-                _f, args['watermark'], output_file
+            'pdftk {} {} {} output {}'.format(
+                _f, args['operation'], args['watermark'], output_file
             )
         )
         if output:
