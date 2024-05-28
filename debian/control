@@ -8,8 +8,8 @@ Homepage: https://github.com/Ayuntamiento-Zaragoza/vx-utils
 
 Package: vx-utils
 Architecture: all
-Depends: ${misc:Depends}, ${python3:Depends}, rpl, gnome-icon-theme-full | gnome-icon-theme, libnotify-bin, zenity, python3-netifaces
-Recommends: pdftk
+Depends: ${misc:Depends}, ${python3:Depends}, rpl, libnotify-bin, zenity, python3-netifaces, ddcutils
+Recommends: pdftk, gnome-icon-theme-full | gnome-icon-theme
 Description: Scripts with utilities for the command line
  Commands built in Python and Bash that can be used in the processes of
  installation of other packages of distribution Vitalinux and derived.
