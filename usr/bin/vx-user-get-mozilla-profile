@@ -93,7 +93,7 @@ def run():
     else:
         app_path = '.thunderbird'
 
-    if not '/' in args['user']:
+    if '/' not in args['user']:
         user_info = vx.get_user_info(args['user'])
         if not user_info:
             if not args['quiet']:
