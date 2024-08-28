@@ -1,3 +1,14 @@
+vx-utils (1.13-1) unstable; urgency=low
+
+  * Se corrige la función get_graphic_user para que devuelva correctamente
+    nombres largos de usuario (de más de 8 caracteres).
+  * Se moderniza la función compare_files (el modo 'U' ya no está soportado
+    en nuevas versiones de Python).
+  * Se corrigen errores de estilo en el script vx-divert-list-files.
+  * Se corrige la dependencia de ddcutil.
+
+ -- Jose Antonio Chavarría <jachavar@gmail.com>  Wed, 28 Aug 2024 18:09:41 +0200
+
 vx-utils (1.12-1) unstable; urgency=low
 
   * Se detecta LXQt en la función get_graphic_pid.
