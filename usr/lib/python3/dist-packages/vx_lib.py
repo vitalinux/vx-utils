@@ -32,7 +32,6 @@ import netifaces
 import configparser
 
 # i18n, l10n
-import locale
 import gettext
 _ = gettext.gettext
 
@@ -53,7 +52,7 @@ def get_config(ini_file, section):
         config.read(ini_file)
 
         return dict(config.items(section))
-    except:
+    except Exception:
         return errno.ENOMSG  # INVALID_DATA
 
 
@@ -99,6 +98,8 @@ def execute(cmd, verbose=False, interactive=True):
                 readx = select.select([_process.stdout.fileno()], [], [])[0]
                 if readx:
                     chunk = _process.stdout.read()
+                    if isinstance(chunk, bytes) and not isinstance(chunk, str):
+                        chunk = str(chunk, encoding='utf8')
                     if chunk and chunk != '\n':
                         print(chunk)
                     _output_buffer = '{}{}'.format(_output_buffer, chunk)
@@ -262,14 +263,14 @@ def get_graphic_user(pid=0):
         if not pid:
             return ''
 
-    _user = subprocess.getoutput('ps hp {} -o "%U"'.format(pid))
+    _user = subprocess.getoutput('ps hp {} -o euser'.format(pid))
     if _user.isdigit():
         # ps command not always show username (show uid if len(username) > 8)
         _user_info = get_user_info(_user)
         if _user_info is False:  # p.e. chroot environment
             return 'root'
-        else:
-            return _user_info['name']
+
+        return _user_info['name']
 
     return _user.strip()
 
@@ -341,10 +342,10 @@ def compare_files(a, b):
     if not os.path.isfile(a) or not os.path.isfile(b):
         return None
 
-    # U - open for input as a text file with universal newline interpretation
-    # http://www.python.org/dev/peps/pep-0278/
-    _list_a = open(a, 'U').readlines()
-    _list_b = open(b, 'U').readlines()
+    with open(a, encoding='utf8') as f:
+        _list_a = f.readlines()
+    with open(b, encoding='utf8') as f:
+        _list_b = f.readlines()
 
     return compare_lists(_list_a, _list_b)
 
@@ -444,7 +445,8 @@ def query_yes_no(question, default="yes"):
         choice = input().lower()
         if default is not None and choice == '':
             return default
-        elif choice in valid.keys():
+
+        if choice in valid.keys():
             return valid[choice]
-        else:
-            print(_("Please respond with 'yes' or 'no' (or 'y' or 'n')."))
+
+        print(_("Please respond with 'yes' or 'no' (or 'y' or 'n')."))
