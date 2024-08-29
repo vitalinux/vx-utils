@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: UTF-8 -*-
 
-# Copyright (c) 2012-2020 Jose Antonio Chavarría <jachavar@gmail.com>
+# Copyright (c) 2012-2024 Jose Antonio Chavarría <jachavar@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -91,7 +91,7 @@ def run():
 
     # uncomment mode
     if args['uncomment']:
-        start = '%s(\s)*%s' % (args['start'], args['text'])
+        start = r'%s(\s)*%s' % (args['start'], args['text'])
         replace = args['text']
 
     # find all occurrences!!!

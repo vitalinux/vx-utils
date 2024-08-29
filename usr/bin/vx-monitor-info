@@ -18,7 +18,6 @@
 
 import os
 import sys
-import pwd
 import errno
 import argparse
 import subprocess
@@ -56,19 +55,19 @@ def get_monitor_info():
     for item in output:
         item_list = item.split('\n')
 
-        i2c_bus = vx.grep('\s*I2C bus', item_list)
+        i2c_bus = vx.grep(r'\s*I2C bus', item_list)
         if len(i2c_bus) == 1:
             i2c_bus = i2c_bus[0].split('/dev/i2c-')[1]
 
-            model = vx.grep('\s*Model', item_list)
+            model = vx.grep(r'\s*Model', item_list)
             if len(model) == 1:
                 model = model[0].split(':')[1].strip()
 
-            serial = vx.grep('\s*Serial', item_list)
+            serial = vx.grep(r'\s*Serial', item_list)
             if len(serial) == 1:
                 serial = serial[0].split(':')[1].strip()
 
-            year = vx.grep('\s*Manufacture year', item_list)
+            year = vx.grep(r'\s*Manufacture year', item_list)
             if len(year) == 1:
                 year = year[0].split(':')[1].strip()
 

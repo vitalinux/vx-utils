@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (c) 2013-2016 Jose Antonio Chavarría <jachavar@gmail.com>
+# Copyright (c) 2013-2024 Jose Antonio Chavarría <jachavar@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -27,9 +27,9 @@ fi
 
 _PKG=$1
 _PATH=/usr/share/$_PKG/divert
-if [ -d $_PATH ]
+if [ -d "$_PATH" ]
 then
-    cd $_PATH
+    cd "$_PATH" || exit 1
     /usr/bin/find . -type f | /usr/bin/cut -c2-  # erase first character (.)
     /usr/bin/find . -type l | /usr/bin/cut -c2-  # erase first character (.)
 fi
